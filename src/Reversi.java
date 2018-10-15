@@ -187,21 +187,7 @@ public class Reversi extends Application {
                             return;
                         }
 
-                        // for each cell of play board, if it is empty, check if it has any valid move. If there isn't any cell then current player can't make a valid move, so he looses his turn.
-                        for(int i = 0; i<8; i++){
-                            for (int j = 0; j<8; j++){
-                                if (isEmpty(gamePane, j, i)){
-                                    if (isValidMove(gamePane, j, i, -1, -1)) return; // checks up-left
-                                    if (isValidMove(gamePane, j, i, 0, -1)) return; // checks up-middle
-                                    if(isValidMove(gamePane, j, i, 1, -1)) return; // checks up-right
-                                    if (isValidMove(gamePane, j, i, -1, 0)) return; // checks left
-                                    if (isValidMove(gamePane, j, i, 1, 0)) return; // checks right
-                                    if (isValidMove(gamePane, j, i, -1, 1)) return; // checks down-left
-                                    if (isValidMove(gamePane, j, i, 0, 1)) return; // checks down-middle
-                                    if (isValidMove(gamePane, j, i, 1, 1)) return; // checks down-right
-                                }
-                            }
-                        }
+                        if(existsValidMove(gamePane)) return;
 
                         // if method doesn't returns from above, then there isn't any possible move for current player, so he looses his turn.
                         Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -223,6 +209,22 @@ public class Reversi extends Application {
                             whiteBox.getChildren().set(1,new Circle(0,0,20, Color.WHITE));
                         }
 
+                        if(!existsValidMove(gamePane)){
+                            Alert gameoverAlert = new Alert(Alert.AlertType.INFORMATION);
+                            gameoverAlert.setTitle("Game Over");
+                            gameoverAlert.setHeaderText(null);
+                            String result = "Neither of players has valid move.\nGame Over.\n";
+                            if(blackCount>whiteCount){
+                                result = "Congratulations! You won this game :) ";
+                            }else if(whiteCount>blackCount){
+                                result = "Computer won this game.";
+                            }else {
+                                result = "Its a draw between you and computer.";
+                            }
+                            gameoverAlert.setContentText(result);
+                            gameoverAlert.showAndWait();
+                            return;
+                        }
                     }
                 });
 
@@ -371,5 +373,24 @@ public class Reversi extends Application {
             }
         }
         return null;
+    }
+
+    private boolean existsValidMove(GridPane gamePane){
+        // for each cell of play board, if it is empty, check if it has any valid move. If there isn't any cell then current player can't make a valid move, so he looses his turn.
+        for(int i = 0; i<8; i++){
+            for (int j = 0; j<8; j++){
+                if (isEmpty(gamePane, j, i)){
+                    if (isValidMove(gamePane, j, i, -1, -1)) return true; // checks up-left
+                    if (isValidMove(gamePane, j, i, 0, -1)) return true; // checks up-middle
+                    if(isValidMove(gamePane, j, i, 1, -1)) return true; // checks up-right
+                    if (isValidMove(gamePane, j, i, -1, 0)) return true; // checks left
+                    if (isValidMove(gamePane, j, i, 1, 0)) return true; // checks right
+                    if (isValidMove(gamePane, j, i, -1, 1)) return true; // checks down-left
+                    if (isValidMove(gamePane, j, i, 0, 1)) return true; // checks down-middle
+                    if (isValidMove(gamePane, j, i, 1, 1)) return true; // checks down-right
+                }
+            }
+        }
+        return false;
     }
 }
