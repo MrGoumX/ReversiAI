@@ -12,12 +12,17 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+import java.lang.reflect.Array;
+
 public class Reversi extends Application {
 
     private static String turn; // points out who player plays right now, black or white.
 
     @Override
     public void start(Stage primaryStage) {
+        //Initiate CPU
+        State comp = new State('w');
+        comp.print();
 
         turn = "black"; // player with black paws begins first.
 
@@ -107,6 +112,17 @@ public class Reversi extends Application {
                     // take column and row of current square, which the player, try to add a pawn.
                     int colTemp = gamePane.getColumnIndex(square);
                     int rowTemp = gamePane.getRowIndex(square);
+                    if(turn.equals("black")){
+                        comp.setPoint(rowTemp, colTemp, 'b');
+                        //comp.print();
+                        System.out.println(comp.getValidMoves().toString());
+                    }
+                    else{
+                        comp.setPoint(rowTemp, colTemp, 'w');
+                        //comp.print();
+                    }
+                    /*System.out.println(colTemp);
+                    System.out.println(rowTemp);*/
 
                     // if its not empty, it has already a pawn so player cant add new one.
                     if(isEmpty(gamePane, colTemp, rowTemp )){
@@ -260,10 +276,10 @@ public class Reversi extends Application {
         }
 
         // put at center of play board 4 initial pawns to begin the game.
-        gamePane.add(new Circle(37.5,37.5, 35, Color.BLACK), 3,3);
-        gamePane.add(new Circle(37.5,37.5, 35, Color.BLACK), 4,4);
-        gamePane.add(new Circle(37.5,37.5, 35, Color.WHITE), 3,4);
-        gamePane.add(new Circle(37.5,37.5, 35, Color.WHITE), 4,3);
+        gamePane.add(new Circle(37.5,37.5, 35, Color.WHITE), 3,3);
+        gamePane.add(new Circle(37.5,37.5, 35, Color.WHITE), 4,4);
+        gamePane.add(new Circle(37.5,37.5, 35, Color.BLACK), 3,4);
+        gamePane.add(new Circle(37.5,37.5, 35, Color.BLACK), 4,3);
 
         // -------- playBoard finished -------------
 
