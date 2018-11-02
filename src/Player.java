@@ -49,13 +49,13 @@ public class Player {
         return res;
     }
 
-    public Move getMax(GameBoard board, int alpha, int beta, int depth){
+    public Move getMax(GameBoard board, double alpha, double beta, int depth){
         if(board.isTerminal() || depth == this.depth){
             Move last = new Move(board.getLastMove().getRow(), board.getLastMove().getCol(), board.getLastMove().getValue());
             last.setScore(board.evaluate());
             return last;
         }
-        ArrayList<GameBoard> children = board.getChildren(this);
+        ArrayList<GameBoard> children = board.getChildren();
         Move max = new Move(Integer.MIN_VALUE);
         for(GameBoard i : children){
             Move move = getMin(new GameBoard(i), alpha, beta, depth+1);
@@ -71,13 +71,13 @@ public class Player {
         return max;
     }
 
-    public Move getMin(GameBoard board, int alpha, int beta, int depth){
+    public Move getMin(GameBoard board, double alpha, double beta, int depth){
         if(board.isTerminal() || depth == this.depth){
             Move last = new Move(board.getLastMove().getRow(), board.getLastMove().getCol(), board.getLastMove().getValue());
             last.setScore(board.evaluate());
             return last;
         }
-        ArrayList<GameBoard> children = board.getChildren(null);
+        ArrayList<GameBoard> children = board.getChildren();
         Move min = new Move(Integer.MAX_VALUE);
         for(GameBoard i : children){
             Move move = getMax(new GameBoard(i), alpha, beta, depth+1);

@@ -2,7 +2,7 @@ public class Move{
     private int row;
     private int col;
     private Character value;
-    private int score;
+    private double score;
     private Move parent;
 
     public Move(){
@@ -81,7 +81,7 @@ public class Move{
         return value;
     }
 
-    public int getScore() {
+    public double getScore() {
         return score;
     }
 
@@ -101,7 +101,7 @@ public class Move{
         this.value = value;
     }
 
-    public void setScore(int score) {
+    public void setScore(double score) {
         this.score = score;
     }
 

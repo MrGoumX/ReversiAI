@@ -75,6 +75,7 @@ public class Main extends Application {
             black = "Bot";
             white = "You";
         }
+        game.setMaximize(Bot);
 
         VBox blackBox = new VBox();
         blackBox.setSpacing(5);

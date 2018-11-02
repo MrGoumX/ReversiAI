@@ -15,7 +15,7 @@ public class GameBoard {
 
     private Character[][] board;
 
-    private Player playsNow, playsNext;
+    private Player playsNow, playsNext, maximize;
 
     private Move lastMove;
 
@@ -176,49 +176,173 @@ public class GameBoard {
         else return false;
     }
 
-    public int evaluate(){
+    public double evaluate(){
         //TODO OPTIMIZE HEURISTIC EVALUATION
-        int score = 0;
+        int mine = getPawns(playsNow.getPawn());
+        int notMine = getPawns(playsNext.getPawn());
+        int nop = 0;
+        if(mine > notMine){
+            nop = 100*(mine)/(mine+notMine);
+        }
+        else if(notMine > mine){
+            nop = -100*notMine/(mine+notMine);
+        }
+        else nop = 0;
+        int mineLines = 0;
+        int notMineLines = 0;
+        int nolp = 0;
         for(int i = 0; i < GRID_SIZE; i++){
+            if(i != 0 && i != 7) continue;
             for(int j = 0; j < GRID_SIZE; j++){
                 if(board[i][j] == playsNow.getPawn()){
-                    score++;
-                    if((i == 0 && j == 0) || (i == 0 && j == 7) || (i == 7 && j == 0) || (i == 7 && j == 7)){
-                        score += 200;
-                    }
-                    else if((i == 2 && j == 2) || (i == 2 && j == 3 ) || (i == 2 && j == 4) || (i == 2 && j == 5) ||
-                            (i == 3 && j == 2) || (i == 3 && j == 3 ) || (i == 3 && j == 4) || (i == 3 && j == 5) ||
-                            (i == 4 && j == 2) || (i == 4 && j == 3 ) || (i == 4 && j == 4) || (i == 4 && j == 5) ||
-                            (i == 5 && j == 2) || (i == 5 && j == 3 ) || (i == 5 && j == 4) || (i == 5 && j == 5)){
-                        score += 10;
-                    }
-                    else if((i == 0 && j == 1) || (i == 1 && j == 0) || (i == 1 && j == 1) || (i == 0 && j == 6) ||
-                            (i == 1 && j == 6) || (i == 1 && j == 7) || (i == 6 && j == 0) || (i == 6 && j == 1) ||
-                            (i == 7 && j == 1) || (i == 6 && j == 6) || (i == 6 && j == 7) || (i == 7 && j == 6)){
-                        score -= 10;
-                    }
-                    else if((i == 0 && j == 2) || (i == 0 && j == 3) || (i == 0 && j == 4) || (i == 0 && j == 5) ||
-                            (i == 2 && j == 0) || (i == 3 && j == 0) || (i == 4 && j == 0) || (i == 5 && j == 0) ||
-                            (i == 2 && j == 7) || (i == 3 && j == 7) || (i == 4 && j == 7) || (i == 5 && j == 7) ||
-                            (i == 7 && j == 2) || (i == 7 && j == 3) || (i == 7 && j == 4) || (i == 7 && j == 5)){
-                        score += 50;
-                    }
+                    mineLines++;
                 }
-            }
-            int black = getPawns(B);
-            int white = getPawns(W);
-            if(playsNow.getPawn() == B){
-                if(black > white){
-                    score += 5;
-                }
-            }
-            else{
-                if(white > black){
-                    score += 5;
+                else if(board[i][j] == playsNext.getPawn()){
+                    notMineLines++;
                 }
             }
         }
-        return score;
+        for(int j = 0; j < GRID_SIZE; j++){
+            if(j != 0 && j != 7) continue;
+            for(int i = 0; i < GRID_SIZE; i++){
+                if(board[i][j] == playsNow.getPawn()){
+                    mineLines++;
+                }
+                else if(board[i][j] == playsNext.getPawn()){
+                    notMineLines++;
+                }
+            }
+        }
+        if(mineLines > notMineLines){
+            nolp = 100*mineLines/(mineLines+notMineLines);
+        }
+        else if(notMineLines > mineLines){
+            nolp = -100*notMineLines/(mineLines+notMineLines);
+        }
+        else nolp = 0;
+        int mineCor = 0;
+        int notMineCor = 0;
+        int noc = 0;
+        int mineLimitCor = 0;
+        int notMineLimitCor = 0;
+        double nolc = 0;
+        if(board[0][0] == playsNow.getPawn()){
+            mineCor++;
+        }
+        else if(board[0][0] == playsNext.getPawn()){
+            notMineCor++;
+        }
+        else{
+            if(board[0][1] == playsNow.getPawn()){
+                mineLimitCor++;
+            }
+            else if(board[0][1] == playsNext.getPawn()){
+                notMineLimitCor++;
+            }
+            if(board[1][1] == playsNow.getPawn()){
+                mineLimitCor++;
+            }
+            else if(board[1][1] == playsNext.getPawn()){
+                notMineLimitCor++;
+            }if(board[1][0] == playsNow.getPawn()){
+                mineLimitCor++;
+            }
+            else if(board[1][0] == playsNext.getPawn()){
+                notMineLimitCor++;
+            }
+        }
+        if(board[0][7] == playsNow.getPawn()){
+            mineCor++;
+        }
+        else if(board[0][7] == playsNext.getPawn()){
+            notMineCor++;
+        }
+        else{
+            if(board[0][6] == playsNow.getPawn()){
+                mineLimitCor++;
+            }
+            else if(board[0][6] == playsNext.getPawn()){
+                notMineLimitCor++;
+            }
+            if(board[1][6] == playsNow.getPawn()){
+                mineLimitCor++;
+            }
+            else if(board[1][6] == playsNext.getPawn()){
+                notMineLimitCor++;
+            }if(board[1][7] == playsNow.getPawn()){
+                mineLimitCor++;
+            }
+            else if(board[1][7] == playsNext.getPawn()){
+                notMineLimitCor++;
+            }
+        }
+        if(board[7][0] == playsNow.getPawn()){
+            mineCor++;
+        }
+        else if(board[7][0] == playsNext.getPawn()){
+            notMineCor++;
+        }
+        else{
+            if(board[7][1] == playsNow.getPawn()){
+                mineLimitCor++;
+            }
+            else if(board[7][1] == playsNext.getPawn()){
+                notMineLimitCor++;
+            }
+            if(board[6][1] == playsNow.getPawn()){
+                mineLimitCor++;
+            }
+            else if(board[6][1] == playsNext.getPawn()){
+                notMineLimitCor++;
+            }if(board[6][0] == playsNow.getPawn()){
+                mineLimitCor++;
+            }
+            else if(board[6][0] == playsNext.getPawn()){
+                notMineLimitCor++;
+            }
+        }
+        if(board[7][7] == playsNow.getPawn()){
+            mineCor++;
+        }
+        else if(board[7][7] == playsNext.getPawn()){
+            notMineCor++;
+        }
+        else{
+            if(board[6][7] == playsNow.getPawn()){
+                mineLimitCor++;
+            }
+            else if(board[6][7] == playsNext.getPawn()){
+                notMineLimitCor++;
+            }
+            if(board[6][6] == playsNow.getPawn()){
+                mineLimitCor++;
+            }
+            else if(board[6][6] == playsNext.getPawn()){
+                notMineLimitCor++;
+            }if(board[7][6] == playsNow.getPawn()){
+                mineLimitCor++;
+            }
+            else if(board[7][6] == playsNext.getPawn()){
+                notMineLimitCor++;
+            }
+        }
+        noc = 25*(mineCor - notMineCor);
+        nolc = -12.5*(mineLimitCor - notMineLimitCor);
+        GameBoard temp = new GameBoard(this);
+        int myMob = temp.getValidMoves().size();
+        temp.setPlaysNow(temp.playsNext);
+        int notMyMob = temp.getValidMoves().size();
+        int mob = 0;
+        if(myMob > notMyMob){
+            mob = 100*myMob/(myMob+notMyMob);
+        }
+        else if(notMyMob > myMob){
+            mob = 100*notMyMob/(myMob+notMyMob);
+        }
+        else mob = 0;
+        int dif = Math.abs(mine-notMine);
+        double fScore = 800*noc + 70*mob + 10*nop + 10*dif + 65*nolp + 300*nolc;
+        return fScore;
     }
 
     private int getPawns(Character who){
@@ -233,7 +357,7 @@ public class GameBoard {
         return s;
     }
 
-    public ArrayList<GameBoard> getChildren(Player playsNow){
+    public ArrayList<GameBoard> getChildren(){
         ArrayList<GameBoard> children = new ArrayList<>();
         ArrayList<Move> validMoves = getValidMoves();
         if(validMoves.size() > 0 ){
@@ -266,6 +390,10 @@ public class GameBoard {
 
     public Character[][] getBoard() {
         return board;
+    }
+
+    public void setMaximize(Player player){
+        this.maximize = player;
     }
 
     public void print(){
