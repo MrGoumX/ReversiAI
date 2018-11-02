@@ -184,23 +184,53 @@ public class GameBoard {
                 if(board[i][j] == playsNow.getPawn()){
                     score++;
                     if((i == 0 && j == 0) || (i == 0 && j == 7) || (i == 7 && j == 0) || (i == 7 && j == 7)){
-                        score += 100;
+                        score += 200;
+                    }
+                    else if((i == 2 && j == 2) || (i == 2 && j == 3 ) || (i == 2 && j == 4) || (i == 2 && j == 5) ||
+                            (i == 3 && j == 2) || (i == 3 && j == 3 ) || (i == 3 && j == 4) || (i == 3 && j == 5) ||
+                            (i == 4 && j == 2) || (i == 4 && j == 3 ) || (i == 4 && j == 4) || (i == 4 && j == 5) ||
+                            (i == 5 && j == 2) || (i == 5 && j == 3 ) || (i == 5 && j == 4) || (i == 5 && j == 5)){
+                        score += 10;
                     }
                     else if((i == 0 && j == 1) || (i == 1 && j == 0) || (i == 1 && j == 1) || (i == 0 && j == 6) ||
                             (i == 1 && j == 6) || (i == 1 && j == 7) || (i == 6 && j == 0) || (i == 6 && j == 1) ||
                             (i == 7 && j == 1) || (i == 6 && j == 6) || (i == 6 && j == 7) || (i == 7 && j == 6)){
-                        score -= 20;
+                        score -= 10;
                     }
                     else if((i == 0 && j == 2) || (i == 0 && j == 3) || (i == 0 && j == 4) || (i == 0 && j == 5) ||
                             (i == 2 && j == 0) || (i == 3 && j == 0) || (i == 4 && j == 0) || (i == 5 && j == 0) ||
                             (i == 2 && j == 7) || (i == 3 && j == 7) || (i == 4 && j == 7) || (i == 5 && j == 7) ||
                             (i == 7 && j == 2) || (i == 7 && j == 3) || (i == 7 && j == 4) || (i == 7 && j == 5)){
-                        score += 10;
+                        score += 50;
                     }
+                }
+            }
+            int black = getPawns(B);
+            int white = getPawns(W);
+            if(playsNow.getPawn() == B){
+                if(black > white){
+                    score += 5;
+                }
+            }
+            else{
+                if(white > black){
+                    score += 5;
                 }
             }
         }
         return score;
+    }
+
+    private int getPawns(Character who){
+        int s = 0;
+        for(int i = 0; i < GRID_SIZE; i++){
+            for(int j = 0; j < GRID_SIZE; j++){
+                if(board[i][j] == who){
+                    s++;
+                }
+            }
+        }
+        return s;
     }
 
     public ArrayList<GameBoard> getChildren(Player playsNow){

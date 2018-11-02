@@ -80,7 +80,7 @@ public class Main extends Application {
         blackBox.setSpacing(5);
         blackBox.setAlignment(Pos.CENTER);
         TextField blackPawnField = new TextField();
-        blackPawnField.setMaxWidth(30);
+        blackPawnField.setMaxWidth(45);
         blackPawnField.setAlignment(Pos.CENTER);
         blackPawnField.setEditable(false);
         StackPane temp = new StackPane();
@@ -93,7 +93,7 @@ public class Main extends Application {
         whiteBox.setSpacing(5);
         whiteBox.setAlignment(Pos.CENTER);
         TextField whitePawnField = new TextField();
-        whitePawnField.setMaxWidth(30);
+        whitePawnField.setMaxWidth(45);
         whitePawnField.setAlignment(Pos.CENTER);
         whitePawnField.setEditable(false);
         whiteBox.getChildren().addAll(new Text(white), new Circle(0,0,20, Color.WHITE), whitePawnField);
