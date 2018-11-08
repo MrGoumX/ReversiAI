@@ -177,55 +177,73 @@ public class Main extends Application {
 
     private void runGame(GridPane gamePane, GameBoard game, Player Human, Player Bot, TextField blackPawnField, TextField whitePawnField){
         if(!game.isTerminal()){
-            if(game.getPlaysNow().equals(Human)){
-                ArrayList<Move> validMoves = game.getValidMoves();
-                if(validMoves.size() > 0){
+            if(game.getValidMoves().size() == 0){
+                if(game.getPlaysNow().getPawn() == Human.getPawn()){
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Reversi Message");
+                    alert.setHeaderText(null);
+                    alert.setContentText("You have no valid moves");
+                    alert.showAndWait();
+                    game.setPlaysNow(Bot);
+                }
+                else{
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Reversi Message");
+                    alert.setHeaderText(null);
+                    alert.setContentText("Bot has no valid moves");
+                    alert.showAndWait();
+                    game.setPlaysNow(Human);
+                }
+                runGame(gamePane, game, Human, Bot, blackPawnField, whitePawnField);
+            }
+            else{
+                if(game.getPlaysNow().getPawn()==Human.getPawn()){
+                    ArrayList<Move> validMoves = game.getValidMoves();
                     movesFX(gamePane, validMoves);
-                    for(int i = 0; i < validMoves.size(); i++){
+                    for (int i = 0; i < validMoves.size(); i++) {
                         Move move = validMoves.get(i);
                         Rectangle square = getRectangeByRowColumnIndex(move.getCol(), move.getRow(), gamePane);
                         square.setOnMouseClicked((MouseEvent t) -> {
-                            int row = (int)(square.getX());
-                            int col = (int)(square.getY());
+                            int row = (int) (square.getX());
+                            int col = (int) (square.getY());
                             Move temp = new Move(row, col);
-                            if(validMoves.contains(temp)){
+                            if (validMoves.contains(temp)) {
                                 temp.setValue(Human.getPawn());
                                 game.makeMove(Human, temp);
                                 updateFX(gamePane, game.getBoard());
-                                game.setPlaysNow(Bot);
                                 validMoves.clear();
-                                if(Human.getPawn() == GameBoard.B){
-                                    blackPawnField.setText(Human.getCount()+"");
-                                    whitePawnField.setText(Bot.getCount()+"");
+                                if (Human.getPawn() == GameBoard.B) {
+                                    blackPawnField.setText(Human.getCount() + "");
+                                    whitePawnField.setText(Bot.getCount() + "");
+                                } else {
+                                    blackPawnField.setText(Bot.getCount() + "");
+                                    whitePawnField.setText(Human.getCount() + "");
                                 }
-                                else{
-                                    blackPawnField.setText(Bot.getCount()+"");
-                                    whitePawnField.setText(Human.getCount()+"");
-                                }
+                                //TODO FIX ANNOYING RECURSION BUG
+                                game.setPlaysNow(Bot);
                                 runGame(gamePane, game, Human, Bot, blackPawnField, whitePawnField);
                             }
                         });
                     }
                 }
-                else{
-                    game.botPlay();
-                }
-            }
-            else if(game.getPlaysNow().equals(Bot)){
-                boolean success = game.botPlay();
-                if(success){
-                    updateFX(gamePane, game.getBoard());
-                    if(Human.getPawn() == GameBoard.B){
-                        blackPawnField.setText(Human.getCount()+"");
-                        whitePawnField.setText(Bot.getCount()+"");
+                else if(game.getPlaysNow().getPawn()==Bot.getPawn()){
+                    if(game.getValidMoves().size() > 0){
+                        boolean success = game.botPlay();
+                        if(success){
+                            updateFX(gamePane, game.getBoard());
+                            if(Human.getPawn() == GameBoard.B){
+                                blackPawnField.setText(Human.getCount()+"");
+                                whitePawnField.setText(Bot.getCount()+"");
+                            }
+                            else{
+                                blackPawnField.setText(Bot.getCount()+"");
+                                whitePawnField.setText(Human.getCount()+"");
+                            }
+                        }
                     }
-                    else{
-                        blackPawnField.setText(Bot.getCount()+"");
-                        whitePawnField.setText(Human.getCount()+"");
-                    }
+                    game.setPlaysNow(Human);
+                    runGame(gamePane, game, Human, Bot, blackPawnField, whitePawnField);
                 }
-                game.setPlaysNow(Human);
-                runGame(gamePane, game, Human, Bot, blackPawnField, whitePawnField);
             }
         }
         else{
@@ -244,8 +262,8 @@ public class Main extends Application {
             }
             alert.setContentText(result);
             alert.showAndWait();
-            return;
         }
+
     }
 
     private void updateFX(GridPane gamePane, Character[][] gameBoard){

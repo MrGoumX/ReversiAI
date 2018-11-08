@@ -1,3 +1,5 @@
+import com.sun.org.apache.xpath.internal.SourceTree;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Optional;
@@ -45,11 +47,11 @@ public class Player {
     }
 
     public Move miniMaxAlphaBeta(GameBoard gameBoard){
-        Move res = getMax(new GameBoard(gameBoard), Integer.MIN_VALUE, Integer.MAX_VALUE, 0);
+        Move res = getMax(new GameBoard(gameBoard), new Move(Integer.MIN_VALUE), new Move(Integer.MAX_VALUE), 0);
         return res;
     }
 
-    public Move getMax(GameBoard board, double alpha, double beta, int depth){
+    public Move getMax(GameBoard board, Move alpha, Move beta, int depth){
         if(board.isTerminal() || depth == this.depth){
             Move last = new Move(board.getLastMove().getRow(), board.getLastMove().getCol(), board.getLastMove().getValue());
             last.setScore(board.evaluate());
@@ -60,39 +62,42 @@ public class Player {
         for(GameBoard i : children){
             Move move = getMin(new GameBoard(i), alpha, beta, depth+1);
             if(move.getScore() >= max.getScore()){
-                max.setRow(i.getLastMove().getRow());
-                max.setCol(i.getLastMove().getCol());
-                max.setValue(i.getLastMove().getValue());
-                max.setScore(i.evaluate());
+                Move lastM = i.getLastMove();
+                max = new Move(lastM.getRow(), lastM.getCol(), lastM.getValue());
+                max.setScore(lastM.getScore());
             }
-            if(move.getScore() >= beta) return move;
-            alpha = Math.max(alpha, move.getScore());
+            if(move.getScore() >= beta.getScore()){
+                return move;
+            }
+            alpha.setScore(Math.max(alpha.getScore(), move.getScore()));
         }
         return max;
     }
 
-    public Move getMin(GameBoard board, double alpha, double beta, int depth){
-        if(board.isTerminal() || depth == this.depth){
+    public Move getMin(GameBoard board, Move alpha, Move beta, int depth) {
+        if (board.isTerminal() || depth == this.depth) {
             Move last = new Move(board.getLastMove().getRow(), board.getLastMove().getCol(), board.getLastMove().getValue());
             last.setScore(board.evaluate());
             return last;
         }
         ArrayList<GameBoard> children = board.getChildren();
         Move min = new Move(Integer.MAX_VALUE);
-        for(GameBoard i : children){
-            Move move = getMax(new GameBoard(i), alpha, beta, depth+1);
-            if(move.getScore() <= min.getScore()){
-                min.setRow(i.getLastMove().getRow());
-                min.setCol(i.getLastMove().getCol());
-                min.setValue(i.getLastMove().getValue());
-                min.setScore(i.evaluate());
+        for (GameBoard i : children) {
+            Move move = getMax(new GameBoard(i), alpha, beta, depth + 1);
+            if (move.getScore() <= min.getScore()) {
+                Move lastM = i.getLastMove();
+                min = new Move(lastM.getRow(), lastM.getCol(), lastM.getValue());
+                min.setScore(lastM.getScore());
             }
-            if(move.getScore() <= alpha) return move;
-            beta = Math.min(beta, move.getScore());
+            if (move.getScore() <= alpha.getScore()) return move;
+            beta.setScore(Math.min(beta.getScore(), move.getScore()));
         }
         return min;
     }
 
-
-
+    @Override
+    public boolean equals(Object obj) {
+        if(this.getPawn() == ((Player)obj).getPawn()) return true;
+        return false;
+    }
 }

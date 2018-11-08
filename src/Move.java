@@ -6,8 +6,6 @@ public class Move{
     private Move parent;
 
     public Move(){
-        this.row = -1;
-        this.col = -1;
         this.value = null;
         this.score = 0;
         this.parent = null;
@@ -22,8 +20,6 @@ public class Move{
     }
 
     public Move(Character value){
-        this.row = -1;
-        this.col = -1;
         this.value = value;
         this.score = 0;
         this.parent = null;
@@ -62,8 +58,6 @@ public class Move{
     }
 
     public Move(int score){
-        this.row = -1;
-        this.col = -1;
         this.value = null;
         this.score = score;
         this.parent = null;
