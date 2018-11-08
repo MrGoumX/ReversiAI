@@ -12,8 +12,6 @@ public class GameBoard {
 
     public static final int GRID_SIZE = 8;
 
-    private Main main;
-
     private final int[][] combinations = new int[][] {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
 
     private Character[][] board;
@@ -48,7 +46,6 @@ public class GameBoard {
             }
         }
         this.populated = board.populated;
-        this.main = board.main;
         count();
     }
 
@@ -305,10 +302,6 @@ public class GameBoard {
 
     public void setMaximize(Player player){
         this.maximize = player;
-    }
-
-    public void setMain(Main main){
-        this.main = main;
     }
 
     public void print(){
