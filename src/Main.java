@@ -1,7 +1,5 @@
 import javafx.application.Application;
-import javafx.application.Platform;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -18,9 +16,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-
-import static java.lang.StrictMath.scalb;
-import static java.lang.StrictMath.toIntExact;
 
 public class Main extends Application {
 
