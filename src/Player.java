@@ -1,14 +1,13 @@
-import com.sun.org.apache.xpath.internal.SourceTree;
+//The Reversi Player Class
 
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Optional;
 
 public class Player {
     private int depth;
     private Character pawn;
     private int count;
 
+    //Constructors
     public Player(){
         this.depth = 3;
         this.pawn = GameBoard.B;
@@ -26,6 +25,7 @@ public class Player {
         this.depth = 0;
     }
 
+    //Setters
     public void setCount(int count){
         this.count = count;
     }
@@ -34,6 +34,7 @@ public class Player {
         this.depth = depth;
     }
 
+    //Getters
     public int getCount(){
         return count;
     }
@@ -46,57 +47,81 @@ public class Player {
         return pawn;
     }
 
+    //MiniMax Algorithm with Alpha Beta Pruning.
     public Move miniMaxAlphaBeta(GameBoard gameBoard){
+        //Initiate MiniMax with the current game board, alpha = -INF, beta = +INF & depth = 0.
         Move res = getMax(new GameBoard(gameBoard), new Move(Integer.MIN_VALUE), new Move(Integer.MAX_VALUE), 0);
+        //Return the best move
         return res;
     }
 
+    //Max of MiniMax, that is our bot.
     public Move getMax(GameBoard board, Move alpha, Move beta, int depth){
+        //Check if game is in terminal condition or if we reached max depth & return the best move.
         if(board.isTerminal() || depth == this.depth){
             Move last = new Move(board.getLastMove().getRow(), board.getLastMove().getCol(), board.getLastMove().getValue());
             last.setScore(board.evaluate());
             return last;
         }
+        //Get the children of current board and simulate all the possible moves.
         ArrayList<GameBoard> children = board.getChildren();
+        //If the human has no moves to play, return the last played move.
         if(children.size() == 0) return board.getLastMove();
+        //Initiate max move with -INF score.
         Move max = new Move(Integer.MIN_VALUE);
         for(GameBoard i : children){
+            //Get the min move (human) for every possible child board.
             Move move = getMin(new GameBoard(i), alpha, beta, depth+1);
             if(move.getScore() >= max.getScore()){
+                //If the move is better than current max then make max the current move.
                 Move lastM = i.getLastMove();
                 max = new Move(lastM.getRow(), lastM.getCol(), lastM.getValue());
                 max.setScore(lastM.getScore());
             }
+            //If the score of our move is bigger than the upper limit (beta) then prune.
             if(move.getScore() >= beta.getScore()){
                 return move;
             }
+            //Change the lower limit (alpha) according to current move score and the current alpha.
             alpha.setScore(Math.max(alpha.getScore(), move.getScore()));
         }
+        //Return max move.
         return max;
     }
 
+    //Max of MiniMax, that is the Homo Sapiens.
     public Move getMin(GameBoard board, Move alpha, Move beta, int depth) {
+        //Check if game is in terminal condition or if we reached max depth & return the worst move.
         if (board.isTerminal() || depth == this.depth) {
             Move last = new Move(board.getLastMove().getRow(), board.getLastMove().getCol(), board.getLastMove().getValue());
             last.setScore(board.evaluate());
             return last;
         }
+        //Get the children of current board and simulate all the possible moves.
         ArrayList<GameBoard> children = board.getChildren();
+        //If the bot has no moves to play, return the last played move.
         if(children.size() == 0) return board.getLastMove();
+        //Initiate min move with +INF score.
         Move min = new Move(Integer.MAX_VALUE);
         for (GameBoard i : children) {
+            //Get the max move (bot) for every possible child board.
             Move move = getMax(new GameBoard(i), alpha, beta, depth + 1);
             if (move.getScore() <= min.getScore()) {
+                //If the move is worse than current min then make min the current move.
                 Move lastM = i.getLastMove();
                 min = new Move(lastM.getRow(), lastM.getCol(), lastM.getValue());
                 min.setScore(lastM.getScore());
             }
+            //If the score of our move is lower than the lower limit (alpha) then prune.
             if (move.getScore() <= alpha.getScore()) return move;
+            //Change the upper limit (beta) according to current move score and the current beta.
             beta.setScore(Math.min(beta.getScore(), move.getScore()));
         }
+        //Return min move.
         return min;
     }
 
+    //Overridden equals for specific use
     @Override
     public boolean equals(Object obj) {
         if(this.getPawn() == ((Player)obj).getPawn()) return true;

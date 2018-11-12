@@ -1,3 +1,5 @@
+//The Reversi Move Class
+
 public class Move{
     private int row;
     private int col;
@@ -5,6 +7,7 @@ public class Move{
     private double score;
     private Move parent;
 
+    //Constructors
     public Move(){
         this.value = null;
         this.score = 0;
@@ -19,34 +22,12 @@ public class Move{
         this.parent = null;
     }
 
-    public Move(Character value){
-        this.value = value;
-        this.score = 0;
-        this.parent = null;
-    }
-
     public Move(int row, int col, Character value){
         this.row = row;
         this.col = col;
         this.value = value;
         this.score = 0;
         this.parent = null;
-    }
-
-    public Move(int row, int col, Character value, int score){
-        this.row = row;
-        this.col = col;
-        this.value = value;
-        this.score = score;
-        this.parent = null;
-    }
-
-    public Move(int row, int col, Character value, int score, Move parent){
-        this.row = row;
-        this.col = col;
-        this.value = value;
-        this.score = score;
-        this.parent = parent;
     }
 
     public Move(Move move){
@@ -63,6 +44,7 @@ public class Move{
         this.parent = null;
     }
 
+    //Getters
     public int getRow(){
         return row;
     }
@@ -83,6 +65,7 @@ public class Move{
         return parent;
     }
 
+    //Setters
     public void setRow(int row) {
         this.row = row;
     }
@@ -103,6 +86,7 @@ public class Move{
         this.parent = parent;
     }
 
+    //Overridden equals for specific use
     @Override
     public boolean equals(Object o) {
         if(o == null) return false;
