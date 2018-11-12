@@ -1,5 +1,7 @@
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
@@ -17,7 +19,16 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static java.lang.StrictMath.scalb;
+import static java.lang.StrictMath.toIntExact;
+
 public class Main extends Application {
+
+    private Move fMove;
+    private static boolean played = false;
+    private int fRow = 0, fCol = 0;
+    private GridPane gamePane;
+
 
     @Override
     public void start(Stage primaryStage) throws Exception {
@@ -124,7 +135,7 @@ public class Main extends Application {
         controlPane.setStyle("-fx-background-color: gray;");
 
 
-        GridPane gamePane = new GridPane(); // gamePane contains the game board.
+        gamePane = new GridPane(); // gamePane contains the game board.
         gamePane.setPrefSize(600,600);
         gamePane.setHgap(5);
         gamePane.setVgap(5);
@@ -157,7 +168,6 @@ public class Main extends Application {
         Separator sep = new Separator();
         sep.setPrefHeight(10);
 
-
         // The whole Pane which contains playboard and controlPane.
         VBox mainPane = new VBox(); // mainPane is the whole GUI, which contains the other components.
         mainPane.setVgrow(controlPane, Priority.ALWAYS); // expand controlPane
@@ -168,6 +178,7 @@ public class Main extends Application {
         primaryStage.show();
 
         runGame(gamePane, game, Human, Bot, blackPawnField, whitePawnField);
+
 
     }
 
@@ -195,54 +206,45 @@ public class Main extends Application {
                     game.setPlaysNow(Human);
                 }
                 runGame(gamePane, game, Human, Bot, blackPawnField, whitePawnField);
+                return;
             }
             else{
-                if(game.getPlaysNow().getPawn()==Human.getPawn()){
+                if(game.getPlaysNow().getPawn() == Human.getPawn()){
                     ArrayList<Move> validMoves = game.getValidMoves();
                     movesFX(gamePane, validMoves);
-                    for (int i = 0; i < validMoves.size(); i++) {
-                        Move move = validMoves.get(i);
-                        Rectangle square = getRectangeByRowColumnIndex(move.getCol(), move.getRow(), gamePane);
-                        square.setOnMouseClicked((MouseEvent t) -> {
-                            int row = (int) (square.getX());
-                            int col = (int) (square.getY());
-                            Move temp = new Move(row, col);
-                            if (validMoves.contains(temp)) {
-                                temp.setValue(Human.getPawn());
-                                game.makeMove(Human, temp);
-                                updateFX(gamePane, game.getBoard());
-                                validMoves.clear();
-                                if (Human.getPawn() == GameBoard.B) {
-                                    blackPawnField.setText(Human.getCount() + "");
-                                    whitePawnField.setText(Bot.getCount() + "");
-                                } else {
-                                    blackPawnField.setText(Bot.getCount() + "");
-                                    whitePawnField.setText(Human.getCount() + "");
-                                }
-                                //TODO FIX ANNOYING RECURSION BUG
-                                game.setPlaysNow(Bot);
-                                runGame(gamePane, game, Human, Bot, blackPawnField, whitePawnField);
+                    for(Move i : validMoves){
+                        Rectangle sq = getRectangeByRowColumnIndex(i.getCol(), i.getRow(), gamePane);
+                        sq.setOnMouseClicked((MouseEvent t) -> {
+                            i.setValue(Human.getPawn());
+                            game.makeMove(Human, i);
+                            updateFX(gamePane, game.getBoard());
+                            if (Human.getPawn() == GameBoard.B) {
+                                blackPawnField.setText(Human.getCount() + "");
+                                whitePawnField.setText(Bot.getCount() + "");
+                            } else {
+                                blackPawnField.setText(Bot.getCount() + "");
+                                whitePawnField.setText(Human.getCount() + "");
                             }
+                            game.setPlaysNow(Bot);
+                            runGame(gamePane, game, Human, Bot, blackPawnField, whitePawnField);
+                            return;
                         });
                     }
                 }
-                else if(game.getPlaysNow().getPawn()==Bot.getPawn()){
-                    if(game.getValidMoves().size() > 0){
-                        boolean success = game.botPlay();
-                        if(success){
-                            updateFX(gamePane, game.getBoard());
-                            if(Human.getPawn() == GameBoard.B){
-                                blackPawnField.setText(Human.getCount()+"");
-                                whitePawnField.setText(Bot.getCount()+"");
-                            }
-                            else{
-                                blackPawnField.setText(Bot.getCount()+"");
-                                whitePawnField.setText(Human.getCount()+"");
-                            }
-                        }
+                else{
+                    game.botPlay();
+                    updateFX(gamePane, game.getBoard());
+                    if(Human.getPawn() == GameBoard.B){
+                        blackPawnField.setText(Human.getCount()+"");
+                        whitePawnField.setText(Bot.getCount()+"");
+                    }
+                    else{
+                        blackPawnField.setText(Bot.getCount()+"");
+                        whitePawnField.setText(Human.getCount()+"");
                     }
                     game.setPlaysNow(Human);
                     runGame(gamePane, game, Human, Bot, blackPawnField, whitePawnField);
+                    return;
                 }
             }
         }
@@ -262,8 +264,8 @@ public class Main extends Application {
             }
             alert.setContentText(result);
             alert.showAndWait();
+            return;
         }
-
     }
 
     private void updateFX(GridPane gamePane, Character[][] gameBoard){
@@ -297,8 +299,26 @@ public class Main extends Application {
                 square.setOnMouseExited((MouseEvent t) -> {
                     square.setFill(Color.FORESTGREEN);
                 });
+                square.setOnMouseClicked((MouseEvent t) ->{
+
+                });
             }
         }
+    }
+
+    public Move getMove(GridPane gamePane, ArrayList<Move> validMoves){
+        for(int i = 0; i < GameBoard.GRID_SIZE; i++) {
+            for (int j = 0; j < GameBoard.GRID_SIZE; j++) {
+                Rectangle square = getRectangeByRowColumnIndex(j, i, gamePane);
+                Move temp = new Move(i, j);
+                square.setOnMouseClicked((MouseEvent t) -> {
+                    if(validMoves.contains(temp)){
+                        fMove = temp;
+                    }
+                });
+            }
+        }
+        return fMove;
     }
 
     private Rectangle getRectangeByRowColumnIndex (final int column, final int row, GridPane gridPane) {
@@ -320,4 +340,22 @@ public class Main extends Application {
         }
         return null;
     }
+
+    public int getfRow(){
+        return fRow;
+    }
+
+    public int getfCol(){
+        return fCol;
+    }
+
+    EventHandler<MouseEvent> mouseHandler = new EventHandler<MouseEvent>() {
+
+        @Override
+        public void handle(MouseEvent mouseEvent) {
+
+        }
+
+    };
+
 }

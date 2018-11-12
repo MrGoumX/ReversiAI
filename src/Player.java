@@ -58,6 +58,7 @@ public class Player {
             return last;
         }
         ArrayList<GameBoard> children = board.getChildren();
+        if(children.size() == 0) return board.getLastMove();
         Move max = new Move(Integer.MIN_VALUE);
         for(GameBoard i : children){
             Move move = getMin(new GameBoard(i), alpha, beta, depth+1);
@@ -81,6 +82,7 @@ public class Player {
             return last;
         }
         ArrayList<GameBoard> children = board.getChildren();
+        if(children.size() == 0) return board.getLastMove();
         Move min = new Move(Integer.MAX_VALUE);
         for (GameBoard i : children) {
             Move move = getMax(new GameBoard(i), alpha, beta, depth + 1);

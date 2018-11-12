@@ -166,15 +166,11 @@ public class GameBoard {
         }
     }
 
-    public boolean botPlay(){
+    public void botPlay(){
         ArrayList<Move> validMoves = getValidMoves();
-        if(validMoves.size() > 0){
-            Move best = playsNow.miniMaxAlphaBeta(this);
-            makeMove(playsNow, best);
-            validMoves.clear();
-            return true;
-        }
-        else return false;
+        Move best = playsNow.miniMaxAlphaBeta(this);
+        makeMove(playsNow, best);
+        validMoves.clear();
     }
 
     public double evaluate(){
