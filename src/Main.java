@@ -24,15 +24,10 @@ import static java.lang.StrictMath.toIntExact;
 
 public class Main extends Application {
 
-    private Move fMove;
-    private static boolean played = false;
-    private int fRow = 0, fCol = 0;
-    private GridPane gamePane;
-
-
     @Override
     public void start(Stage primaryStage) throws Exception {
 
+        //Display Options to Start the Game
         final String[] data = {"Human", "AI Bot"};
         List<String> dialogData = Arrays.asList(data);
         ChoiceDialog first = new ChoiceDialog(dialogData.get(0), dialogData);
@@ -76,6 +71,8 @@ public class Main extends Application {
         }
         GameBoard game;
         String black, white;
+
+        //Set the text on the bottom bar
         if(Human.getPawn() == GameBoard.B){
             game = new GameBoard(Human, Bot);
             black = "You";
@@ -86,8 +83,8 @@ public class Main extends Application {
             black = "Bot";
             white = "You";
         }
-        game.setMaximize(Bot);
 
+        //Initiate GUI
         VBox blackBox = new VBox();
         blackBox.setSpacing(5);
         blackBox.setAlignment(Pos.CENTER);
@@ -110,7 +107,6 @@ public class Main extends Application {
         whitePawnField.setEditable(false);
         whiteBox.getChildren().addAll(new Text(white), new Circle(0,0,20, Color.WHITE), whitePawnField);
         HBox.setHgrow(whiteBox, Priority.ALWAYS);
-
 
         VBox middleBox = new VBox();
         middleBox.setSpacing(5);
@@ -135,7 +131,7 @@ public class Main extends Application {
         controlPane.setStyle("-fx-background-color: gray;");
 
 
-        gamePane = new GridPane(); // gamePane contains the game board.
+        GridPane gamePane = new GridPane(); // gamePane contains the game board.
         gamePane.setPrefSize(600,600);
         gamePane.setHgap(5);
         gamePane.setVgap(5);
@@ -156,6 +152,7 @@ public class Main extends Application {
                 }
             }
         }
+
         if(Human.getPawn() == GameBoard.B){
             blackPawnField.setText(Human.getCount()+"");
             whitePawnField.setText(Bot.getCount()+"");
@@ -177,8 +174,8 @@ public class Main extends Application {
         primaryStage.setScene(new Scene(mainPane, 635, 750));
         primaryStage.show();
 
+        //Start the game
         runGame(gamePane, game, Human, Bot, blackPawnField, whitePawnField);
-
 
     }
 
@@ -186,9 +183,13 @@ public class Main extends Application {
         launch(args);
     }
 
+    //The method that runs the game
     private void runGame(GridPane gamePane, GameBoard game, Player Human, Player Bot, TextField blackPawnField, TextField whitePawnField){
+        //Check if the board is in terminal condition
         if(!game.isTerminal()){
+            //If there are no moves available
             if(game.getValidMoves().size() == 0){
+                //Of the human, then display message and set the bot to play
                 if(game.getPlaysNow().getPawn() == Human.getPawn()){
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Reversi Message");
@@ -197,6 +198,7 @@ public class Main extends Application {
                     alert.showAndWait();
                     game.setPlaysNow(Bot);
                 }
+                //Of the bot, then display message and set the human to play
                 else{
                     Alert alert = new Alert(Alert.AlertType.INFORMATION);
                     alert.setTitle("Reversi Message");
@@ -209,12 +211,14 @@ public class Main extends Application {
                 return;
             }
             else{
+                //If Homo Sapiens is playing, then update the GUI and wait for the Homo Sapiens to play
                 if(game.getPlaysNow().getPawn() == Human.getPawn()){
                     ArrayList<Move> validMoves = game.getValidMoves();
                     movesFX(gamePane, validMoves);
                     for(Move i : validMoves){
                         Rectangle sq = getRectangeByRowColumnIndex(i.getCol(), i.getRow(), gamePane);
                         sq.setOnMouseClicked((MouseEvent t) -> {
+                            //Once the Homo Sapiens has made a move, update the GUI and set the bot to play
                             i.setValue(Human.getPawn());
                             game.makeMove(Human, i);
                             updateFX(gamePane, game.getBoard());
@@ -231,6 +235,7 @@ public class Main extends Application {
                         });
                     }
                 }
+                //If the bot is playing, then update the GUI and wait for the bot to play
                 else{
                     game.botPlay();
                     updateFX(gamePane, game.getBoard());
@@ -249,6 +254,7 @@ public class Main extends Application {
             }
         }
         else{
+            //Once the game has game has finished display the correct message
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Game Over");
             alert.setHeaderText(null);
@@ -268,6 +274,7 @@ public class Main extends Application {
         }
     }
 
+    //Update the GUI board according to the changes from the move played
     private void updateFX(GridPane gamePane, Character[][] gameBoard){
         for(int i = 0; i < GameBoard.GRID_SIZE; i++){
             for(int j = 0; j < GameBoard.GRID_SIZE; j++){
@@ -283,6 +290,7 @@ public class Main extends Application {
         }
     }
 
+    //Update the GUI to display the moves available
     private void movesFX(GridPane gamePane, ArrayList<Move> validMoves){
         for(int i = 0; i < GameBoard.GRID_SIZE; i++){
             for(int j = 0; j < GameBoard.GRID_SIZE; j++){
@@ -306,21 +314,7 @@ public class Main extends Application {
         }
     }
 
-    public Move getMove(GridPane gamePane, ArrayList<Move> validMoves){
-        for(int i = 0; i < GameBoard.GRID_SIZE; i++) {
-            for (int j = 0; j < GameBoard.GRID_SIZE; j++) {
-                Rectangle square = getRectangeByRowColumnIndex(j, i, gamePane);
-                Move temp = new Move(i, j);
-                square.setOnMouseClicked((MouseEvent t) -> {
-                    if(validMoves.contains(temp)){
-                        fMove = temp;
-                    }
-                });
-            }
-        }
-        return fMove;
-    }
-
+    //Get the square in the Board by GUI
     private Rectangle getRectangeByRowColumnIndex (final int column, final int row, GridPane gridPane) {
         ObservableList<Node> children = gridPane.getChildren();
         for (int i=0; i< 64; i++) {
@@ -331,6 +325,7 @@ public class Main extends Application {
         return null;
     }
 
+    //Get the circle in the Board by GUI
     private Circle getCircleByRowColumnIndex (final int column, final int row, GridPane gridPane) {
         ObservableList<Node> children = gridPane.getChildren();
         for (int i=64; i< children.size(); i++) {
@@ -340,22 +335,5 @@ public class Main extends Application {
         }
         return null;
     }
-
-    public int getfRow(){
-        return fRow;
-    }
-
-    public int getfCol(){
-        return fCol;
-    }
-
-    EventHandler<MouseEvent> mouseHandler = new EventHandler<MouseEvent>() {
-
-        @Override
-        public void handle(MouseEvent mouseEvent) {
-
-        }
-
-    };
 
 }
