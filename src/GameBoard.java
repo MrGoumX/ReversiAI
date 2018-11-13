@@ -1,26 +1,33 @@
-import javafx.scene.layout.GridPane;
+//The Reversi Game Board Class
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.stream.IntStream;
 
 public class GameBoard {
+    //Reversi Board States
     public static final Character B = 'B';
     public static final Character W = 'W';
     public static final Character E = null;
 
+    //GRID SIZE
     public static final int GRID_SIZE = 8;
 
+    //Number of combinations that we can traverse the game board
     private final int[][] combinations = new int[][] {{-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1}};
 
+    //The game board
     private Character[][] board;
 
+    //The players
     private Player playsNow, playsNext;
 
+    //The last move played
     private Move lastMove;
 
-    private int populated;
+    //Number of squares populated
+    private int populated, changed;
 
+    //Constructors
     public GameBoard(Player playsNow, Player playsNext){
         this.lastMove = new Move();
         this.playsNow = playsNow;
@@ -35,7 +42,7 @@ public class GameBoard {
     }
 
     public GameBoard(GameBoard board){
-        this.lastMove = board.lastMove;
+        this.lastMove = new Move(board.getLastMove());
         this.playsNow = board.playsNow;
         this.playsNext = board.playsNext;
         this.board = new Character[GRID_SIZE][GRID_SIZE];
@@ -48,14 +55,17 @@ public class GameBoard {
         count();
     }
 
+    //Method that gets all the available moves that a player can make
     public ArrayList<Move> getValidMoves(){
         ArrayList<Move> validMoves = new ArrayList<>();
         for(int i = 0; i < GRID_SIZE; i++){
             for(int j = 0; j < GRID_SIZE; j++){
                 if(board[i][j]==null){
                     for(int k = 0; k < GRID_SIZE; k++){
+                        //For every block of the board and every direction check if a square is a valid move for the current player
                         boolean res = isValid(i, j, combinations[k][0], combinations[k][1]);
                         if(res){
+                            //If so, add it to the valid moves list
                             validMoves.add(new Move(i, j, playsNow.getPawn()));
                             break;
                         }
@@ -66,6 +76,7 @@ public class GameBoard {
         return validMoves;
     }
 
+    //Checks if a square is valid for a move
     public boolean isValid(int row, int col, int x, int y){
         boolean same = true;
         while(true){
@@ -102,27 +113,31 @@ public class GameBoard {
         }
     }
 
+    //Update the board according to the new pawn that was placed on the board
     public void update(Move move){
+        //Get the character of the move
         Character value = move.getValue();
         for(int k = 0; k < GRID_SIZE; k++){
             int row = move.getRow();
             int col = move.getCol();
             if(isValid(move.getRow(), move.getCol(), combinations[k][0], combinations[k][1])){
+                //Update to all the directions that the move has access to
                 while(true) {
                     row += combinations[k][0];
                     col += combinations[k][1];
                     if (board[row][col] == null) break;
                     if (row >= 0 && col >= 0 && row < GRID_SIZE && col < GRID_SIZE) {
-                        //Circle tempCircle = getCircleByRowColumnIndex(col, row, gamePane);
                         if (playsNow.getPawn() == W) {
                             if (board[row][col] == B) {// if pawn is black
                                 board[row][col] = value;
+                                changed++;
                             } else { // its the end of move, so exit.
                                 break;
                             }
                         } else {// black turn
                             if (board[row][col] == W) {// if pawn is black
                                 board[row][col] = value;
+                                changed++;
                             } else { // its the end of move, so exit.
                                 break;
                             }
@@ -136,13 +151,21 @@ public class GameBoard {
         count();
     }
 
+    //Perform player move
     public void makeMove(Player player, Move move){
+        //Add the move to the board
         board[move.getRow()][move.getCol()] = move.getValue();
+        //Update the last move
         lastMove = new Move(move.getRow(), move.getCol(), move.getValue());
+        //Increase the population
         populated++;
+        //Get how many pawns changed
+        changed = 1;
+        //Update the rest of the board
         update(move);
     }
 
+    //Count the pawns
     public void count(){
         int p1 = 0, p2 = 0;
         for(int i = 0; i < GRID_SIZE; i++){
@@ -165,45 +188,149 @@ public class GameBoard {
         }
     }
 
-    public boolean botPlay(){
+    //Helper method so as the bot is able to play
+    public void botPlay(){
+        //Get all the valid moves
         ArrayList<Move> validMoves = getValidMoves();
-        if(validMoves.size() > 0){
-            Move best = playsNow.miniMaxAlphaBeta(this);
-            makeMove(playsNow, best);
-            validMoves.clear();
-            return true;
-        }
-        else return false;
+        //Get the best move according to MiniMax Algorithm
+        Move best = playsNow.miniMaxAlphaBeta(this);
+        //Make the move
+        makeMove(playsNow, best);
+        //Clear the list
+        validMoves.clear();
     }
 
-    public int evaluate(){
+    //Heuristic evaluation for the moves played
+    public double evaluate(){
         //TODO OPTIMIZE HEURISTIC EVALUATION
-        int score = 0;
+        double score = 0;
+        if(playsNow.getPawn() == B){
+            //Parity score, if the black has even number of pawns then add 1 point, else subtract one point.
+            if(getPawns(B)%2==0){
+                score+=1;
+            }
+            else {
+                score -= 1;
+            }
+        }
+        else{
+            //Parity score, if the white has odd number of pawns then add 1 point, else subtract one point.
+            if(getPawns(W)%2==1){
+                score+=1;
+            }
+            else{
+                score-=1;
+            }
+        }
+        //Mobility score, every available move +1 point
+        score += getValidMoves().size();
         for(int i = 0; i < GRID_SIZE; i++){
             for(int j = 0; j < GRID_SIZE; j++){
-                if(board[i][j] == playsNow.getPawn()){
-                    score++;
-                    if((i == 0 && j == 0) || (i == 0 && j == 7) || (i == 7 && j == 0) || (i == 7 && j == 7)){
-                        score += 100;
+                //Play close to your empty tiles rule. Every empty tile worth +1 point
+                for(int k = i-1; k < i+1; k++){
+                    for(int l = j-1; l < j+1; l++){
+                        if(l < 0 || l >= GRID_SIZE || k <0 || k >= GRID_SIZE) {
+                            continue;
+                        }
+                        else{
+                            if(board[i][j] == playsNow.getPawn()){
+                                if(board[k][l] == E){
+                                    score++;
+                                }
+                            }
+                        }
                     }
+                }
+                if(board[i][j] == playsNow.getPawn()){
+                    //Every pawn is worth 1 point
+                    score++;
+                    //Captured corner +200 points
+                    if((i == 0 && j == 0) || (i == 0 && j == 7) || (i == 7 && j == 0) || (i == 7 && j == 7)){
+                        score += 200;
+                    }
+                    //Captured squares next to corners worth -50 points
                     else if((i == 0 && j == 1) || (i == 1 && j == 0) || (i == 1 && j == 1) || (i == 0 && j == 6) ||
                             (i == 1 && j == 6) || (i == 1 && j == 7) || (i == 6 && j == 0) || (i == 6 && j == 1) ||
                             (i == 7 && j == 1) || (i == 6 && j == 6) || (i == 6 && j == 7) || (i == 7 && j == 6)){
-                        score -= 20;
+                        score -= 50;
                     }
+                    //Captured squares at the the first inner square worth -5 points
+                    else if((i == 1 && j == 2) || (i == 1 && j == 3) || (i == 1 && j == 4) || (i == 1 && j == 5) ||
+                            (i == 2 && j == 1) || (i == 3 && j == 1) || (i == 4 && j == 1) || (i == 5 && j == 1) ||
+                            (i == 6 && j == 2) || (i == 6 && j == 3) || (i == 6 && j == 4) || (i == 6 && j == 5) ||
+                            (i == 2 && j == 6) || (i == 3 && j == 6) || (i == 4 && j == 6) || (i == 5 && j == 6)){
+                        score -= 5;
+                    }
+                    //Captured squares at the edges worth +20 points
                     else if((i == 0 && j == 2) || (i == 0 && j == 3) || (i == 0 && j == 4) || (i == 0 && j == 5) ||
                             (i == 2 && j == 0) || (i == 3 && j == 0) || (i == 4 && j == 0) || (i == 5 && j == 0) ||
                             (i == 2 && j == 7) || (i == 3 && j == 7) || (i == 4 && j == 7) || (i == 5 && j == 7) ||
                             (i == 7 && j == 2) || (i == 7 && j == 3) || (i == 7 && j == 4) || (i == 7 && j == 5)){
-                        score += 10;
+                        score += 20;
+                    }
+                }
+                //Play close to your pawns rule. Every pawn in the last move 3x3 is +1 point
+                for(int k = i-3; k < i+3; k++) {
+                    for (int l = j - 3; l < j + 3; l++) {
+                        if (l < 0 || l >= GRID_SIZE || k < 0 || k >= GRID_SIZE) {
+                            continue;
+                        }
+                        else {
+                            if(board[k][l]==playsNow.getPawn()){
+                                score+=5;
+                            }
+                        }
                     }
                 }
             }
         }
+        ArrayList<Move> possibleMoves = getValidMoves();
+        for(int k = 0; k < possibleMoves.size(); k++){
+            int i = possibleMoves.get(k).getRow();
+            int j = possibleMoves.get(k).getCol();
+            if((i == 0 && j == 0) || (i == 0 && j == 7) || (i == 7 && j == 0) || (i == 7 && j == 7)){
+                score += 200;
+            }
+            //Captured squares next to corners worth -50 points
+            else if((i == 0 && j == 1) || (i == 1 && j == 0) || (i == 1 && j == 1) || (i == 0 && j == 6) ||
+                    (i == 1 && j == 6) || (i == 1 && j == 7) || (i == 6 && j == 0) || (i == 6 && j == 1) ||
+                    (i == 7 && j == 1) || (i == 6 && j == 6) || (i == 6 && j == 7) || (i == 7 && j == 6)){
+                score -= 80;
+            }
+            //Captured squares at the the first inner square worth -5 points
+            else if((i == 1 && j == 2) || (i == 1 && j == 3) || (i == 1 && j == 4) || (i == 1 && j == 5) ||
+                    (i == 2 && j == 1) || (i == 3 && j == 1) || (i == 4 && j == 1) || (i == 5 && j == 1) ||
+                    (i == 6 && j == 2) || (i == 6 && j == 3) || (i == 6 && j == 4) || (i == 6 && j == 5) ||
+                    (i == 2 && j == 6) || (i == 3 && j == 6) || (i == 4 && j == 6) || (i == 5 && j == 6)){
+                score -= 10;
+            }
+            //Captured squares at the edges worth +20 points
+            else if((i == 0 && j == 2) || (i == 0 && j == 3) || (i == 0 && j == 4) || (i == 0 && j == 5) ||
+                    (i == 2 && j == 0) || (i == 3 && j == 0) || (i == 4 && j == 0) || (i == 5 && j == 0) ||
+                    (i == 2 && j == 7) || (i == 3 && j == 7) || (i == 4 && j == 7) || (i == 5 && j == 7) ||
+                    (i == 7 && j == 2) || (i == 7 && j == 3) || (i == 7 && j == 4) || (i == 7 && j == 5)){
+                score += 20;
+            }
+        }
+        score += changed*5;
         return score;
     }
 
-    public ArrayList<GameBoard> getChildren(Player playsNow){
+    //Get the number of pawns based on the colour
+    private int getPawns(Character who){
+        int s = 0;
+        for(int i = 0; i < GRID_SIZE; i++){
+            for(int j = 0; j < GRID_SIZE; j++){
+                if(board[i][j] == who){
+                    s++;
+                }
+            }
+        }
+        return s;
+    }
+
+    //Simulate all the moves available as GameBoard
+    public ArrayList<GameBoard> getChildren(){
         ArrayList<GameBoard> children = new ArrayList<>();
         ArrayList<Move> validMoves = getValidMoves();
         if(validMoves.size() > 0 ){
@@ -217,15 +344,18 @@ public class GameBoard {
         return children;
     }
 
+    //Check if the game board is in a final condition
     public boolean isTerminal(){
-        return (populated == 64 || playsNow.getCount() == 0) ? true : false;
+        return (populated == 64 || getPawns(W) == 0 || getPawns(B) == 0);
     }
 
+    //Setters
     public void setPlaysNow(Player playsNow) {
         this.playsNext = this.playsNow;
         this.playsNow = playsNow;
     }
 
+    //Getters
     public Move getLastMove() {
         return lastMove;
     }
@@ -238,6 +368,7 @@ public class GameBoard {
         return board;
     }
 
+    //Print
     public void print(){
         for(int i = 0; i < 8; i++){
             System.out.println(Arrays.toString(this.board[i]));

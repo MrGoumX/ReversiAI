@@ -1,13 +1,14 @@
+//The Reversi Move Class
+
 public class Move{
     private int row;
     private int col;
     private Character value;
-    private int score;
+    private double score;
     private Move parent;
 
+    //Constructors
     public Move(){
-        this.row = -1;
-        this.col = -1;
         this.value = null;
         this.score = 0;
         this.parent = null;
@@ -21,36 +22,12 @@ public class Move{
         this.parent = null;
     }
 
-    public Move(Character value){
-        this.row = -1;
-        this.col = -1;
-        this.value = value;
-        this.score = 0;
-        this.parent = null;
-    }
-
     public Move(int row, int col, Character value){
         this.row = row;
         this.col = col;
         this.value = value;
         this.score = 0;
         this.parent = null;
-    }
-
-    public Move(int row, int col, Character value, int score){
-        this.row = row;
-        this.col = col;
-        this.value = value;
-        this.score = score;
-        this.parent = null;
-    }
-
-    public Move(int row, int col, Character value, int score, Move parent){
-        this.row = row;
-        this.col = col;
-        this.value = value;
-        this.score = score;
-        this.parent = parent;
     }
 
     public Move(Move move){
@@ -62,13 +39,12 @@ public class Move{
     }
 
     public Move(int score){
-        this.row = -1;
-        this.col = -1;
         this.value = null;
         this.score = score;
         this.parent = null;
     }
 
+    //Getters
     public int getRow(){
         return row;
     }
@@ -81,7 +57,7 @@ public class Move{
         return value;
     }
 
-    public int getScore() {
+    public double getScore() {
         return score;
     }
 
@@ -89,6 +65,7 @@ public class Move{
         return parent;
     }
 
+    //Setters
     public void setRow(int row) {
         this.row = row;
     }
@@ -101,7 +78,7 @@ public class Move{
         this.value = value;
     }
 
-    public void setScore(int score) {
+    public void setScore(double score) {
         this.score = score;
     }
 
@@ -109,6 +86,7 @@ public class Move{
         this.parent = parent;
     }
 
+    //Overridden equals for specific use
     @Override
     public boolean equals(Object o) {
         if(o == null) return false;
