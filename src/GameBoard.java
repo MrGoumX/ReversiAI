@@ -284,6 +284,7 @@ public class GameBoard {
                 }
             }
         }
+        //Evaluate all next possible moves
         ArrayList<Move> possibleMoves = getValidMoves();
         for(int k = 0; k < possibleMoves.size(); k++){
             int i = possibleMoves.get(k).getRow();
@@ -312,6 +313,7 @@ public class GameBoard {
                 score += 20;
             }
         }
+        //Evaluate how many pawns changed
         score += changed*5;
         return score;
     }
