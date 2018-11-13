@@ -25,7 +25,7 @@ public class GameBoard {
     private Move lastMove;
 
     //Number of squares populated
-    private int populated;
+    private int populated, changed;
 
     //Constructors
     public GameBoard(Player playsNow, Player playsNext){
@@ -130,12 +130,14 @@ public class GameBoard {
                         if (playsNow.getPawn() == W) {
                             if (board[row][col] == B) {// if pawn is black
                                 board[row][col] = value;
+                                changed++;
                             } else { // its the end of move, so exit.
                                 break;
                             }
                         } else {// black turn
                             if (board[row][col] == W) {// if pawn is black
                                 board[row][col] = value;
+                                changed++;
                             } else { // its the end of move, so exit.
                                 break;
                             }
@@ -157,6 +159,8 @@ public class GameBoard {
         lastMove = new Move(move.getRow(), move.getCol(), move.getValue());
         //Increase the population
         populated++;
+        //Get how many pawns changed
+        changed = 1;
         //Update the rest of the board
         update(move);
     }
@@ -280,6 +284,35 @@ public class GameBoard {
                 }
             }
         }
+        ArrayList<Move> possibleMoves = getValidMoves();
+        for(int k = 0; k < possibleMoves.size(); k++){
+            int i = possibleMoves.get(k).getRow();
+            int j = possibleMoves.get(k).getCol();
+            if((i == 0 && j == 0) || (i == 0 && j == 7) || (i == 7 && j == 0) || (i == 7 && j == 7)){
+                score += 200;
+            }
+            //Captured squares next to corners worth -50 points
+            else if((i == 0 && j == 1) || (i == 1 && j == 0) || (i == 1 && j == 1) || (i == 0 && j == 6) ||
+                    (i == 1 && j == 6) || (i == 1 && j == 7) || (i == 6 && j == 0) || (i == 6 && j == 1) ||
+                    (i == 7 && j == 1) || (i == 6 && j == 6) || (i == 6 && j == 7) || (i == 7 && j == 6)){
+                score -= 80;
+            }
+            //Captured squares at the the first inner square worth -5 points
+            else if((i == 1 && j == 2) || (i == 1 && j == 3) || (i == 1 && j == 4) || (i == 1 && j == 5) ||
+                    (i == 2 && j == 1) || (i == 3 && j == 1) || (i == 4 && j == 1) || (i == 5 && j == 1) ||
+                    (i == 6 && j == 2) || (i == 6 && j == 3) || (i == 6 && j == 4) || (i == 6 && j == 5) ||
+                    (i == 2 && j == 6) || (i == 3 && j == 6) || (i == 4 && j == 6) || (i == 5 && j == 6)){
+                score -= 10;
+            }
+            //Captured squares at the edges worth +20 points
+            else if((i == 0 && j == 2) || (i == 0 && j == 3) || (i == 0 && j == 4) || (i == 0 && j == 5) ||
+                    (i == 2 && j == 0) || (i == 3 && j == 0) || (i == 4 && j == 0) || (i == 5 && j == 0) ||
+                    (i == 2 && j == 7) || (i == 3 && j == 7) || (i == 4 && j == 7) || (i == 5 && j == 7) ||
+                    (i == 7 && j == 2) || (i == 7 && j == 3) || (i == 7 && j == 4) || (i == 7 && j == 5)){
+                score += 20;
+            }
+        }
+        score += changed*5;
         return score;
     }
 
