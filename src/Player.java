@@ -80,6 +80,10 @@ public class Player {
             }
             //If the score of our move is bigger than the upper limit (beta) then prune.
             if(move.getScore() >= beta.getScore()){
+                System.out.println("l");
+                System.out.println(alpha.getScore());
+                System.out.println(beta.getScore());
+                System.out.println(move.getRow() + " " + move.getCol() +  " " + move.getValue() + " " + move.getScore());
                 return move;
             }
             //Change the lower limit (alpha) according to current move score and the current alpha.

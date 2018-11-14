@@ -270,8 +270,8 @@ public class GameBoard {
                     }
                 }
                 //Play close to your pawns rule. Every pawn in the last move 3x3 is +1 point
-                for(int k = i-3; k < i+3; k++) {
-                    for (int l = j - 3; l < j + 3; l++) {
+                for(int k = i-2; k < i+2; k++) {
+                    for (int l = j - 2; l < j + 2; l++) {
                         if (l < 0 || l >= GRID_SIZE || k < 0 || k >= GRID_SIZE) {
                             continue;
                         }
@@ -296,14 +296,14 @@ public class GameBoard {
             else if((i == 0 && j == 1) || (i == 1 && j == 0) || (i == 1 && j == 1) || (i == 0 && j == 6) ||
                     (i == 1 && j == 6) || (i == 1 && j == 7) || (i == 6 && j == 0) || (i == 6 && j == 1) ||
                     (i == 7 && j == 1) || (i == 6 && j == 6) || (i == 6 && j == 7) || (i == 7 && j == 6)){
-                score -= 80;
+                score -= 50;
             }
             //Captured squares at the the first inner square worth -5 points
             else if((i == 1 && j == 2) || (i == 1 && j == 3) || (i == 1 && j == 4) || (i == 1 && j == 5) ||
                     (i == 2 && j == 1) || (i == 3 && j == 1) || (i == 4 && j == 1) || (i == 5 && j == 1) ||
                     (i == 6 && j == 2) || (i == 6 && j == 3) || (i == 6 && j == 4) || (i == 6 && j == 5) ||
                     (i == 2 && j == 6) || (i == 3 && j == 6) || (i == 4 && j == 6) || (i == 5 && j == 6)){
-                score -= 10;
+                score -= 5;
             }
             //Captured squares at the edges worth +20 points
             else if((i == 0 && j == 2) || (i == 0 && j == 3) || (i == 0 && j == 4) || (i == 0 && j == 5) ||
