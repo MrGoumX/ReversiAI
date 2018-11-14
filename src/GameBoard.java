@@ -25,7 +25,7 @@ public class GameBoard {
     private Move lastMove;
 
     //Number of squares populated
-    private int populated, changed;
+    private int populated, changed = 0;
 
     //Constructors
     public GameBoard(Player playsNow, Player playsNext){
