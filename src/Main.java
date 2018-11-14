@@ -1,9 +1,11 @@
 import javafx.application.Application;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
@@ -17,10 +19,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static java.lang.System.exit;
+
 public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        primaryStage.getIcons().add(new Image("https://www.aueb.gr/sites/default/files/hermis.png"));
+        primaryStage.setTitle("Reversi");
 
         //Display Options to Start the Game
         final String[] data = {"Human", "AI Bot"};
@@ -52,18 +58,29 @@ public class Main extends Application {
         TextInputDialog inputDepth = new TextInputDialog();
         inputDepth.setTitle("Set the depth of MiniMax");
         inputDepth.setHeaderText("Please enter a integer value");
-        Optional<String> d = inputDepth.showAndWait();
-        String entered = "";
-        if(d.isPresent()){
-            entered = d.get();
-        }
-        if(entered.equals("")|| !entered.matches("\\d+")){
-            return;
-        }
-        else{
-            Bot.setDepth(Integer.parseInt(entered));
-            Human.setDepth(Integer.parseInt(entered));
-        }
+        final Button cancel = (Button) inputDepth.getDialogPane().lookupButton(ButtonType.CANCEL);
+        cancel.addEventFilter(ActionEvent.ACTION, event -> exit(0));
+        Optional<String> d;
+        boolean finished = false;
+        do{
+            d = inputDepth.showAndWait();
+            String entered = "";
+            if(d.isPresent()){
+                entered = d.get();
+                if(entered.equals("")|| !entered.matches("\\d+")){
+                    Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                    errorAlert.setHeaderText("Input not valid");
+                    errorAlert.setContentText("You need to enter an integer");
+                    errorAlert.showAndWait();
+                }
+                else{
+                    Bot.setDepth(Integer.parseInt(entered));
+                    Human.setDepth(Integer.parseInt(entered));
+                    finished = true;
+                }
+            }
+        }while (!finished);
+
         GameBoard game;
         String black, white;
 
