@@ -269,7 +269,7 @@ public class GameBoard {
                         score += 20;
                     }
                 }
-                //Play close to your pawns rule. Every pawn in the last move 3x3 is +1 point
+                //Play close to your pawns rule. Every pawn in the last move 5x5 is +1 point
                 for(int k = i-2; k < i+2; k++) {
                     for (int l = j - 2; l < j + 2; l++) {
                         if (l < 0 || l >= GRID_SIZE || k < 0 || k >= GRID_SIZE) {
