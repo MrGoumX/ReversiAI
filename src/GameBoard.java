@@ -204,29 +204,15 @@ public class GameBoard {
     public double evaluate(){
         //TODO OPTIMIZE HEURISTIC EVALUATION
         double score = 0;
-        if(playsNow.getPawn() == B){
-            //Parity score, if the black has even number of pawns then add 1 point, else subtract one point.
-            if(getPawns(B)%2==0){
-                score+=1;
-            }
-            else {
-                score -= 1;
-            }
-        }
-        else{
-            //Parity score, if the white has odd number of pawns then add 1 point, else subtract one point.
-            if(getPawns(W)%2==1){
-                score+=1;
-            }
-            else{
-                score-=1;
-            }
-        }
         //Mobility score, every available move +1 point
-        score += getValidMoves().size();
+        double mobility =  getValidMoves().size();
+        double pawns = getPawns(playsNow.getPawn());
+        double positions = 0;
+        double close = 0;
+        //score +=
         for(int i = 0; i < GRID_SIZE; i++){
             for(int j = 0; j < GRID_SIZE; j++){
-                //Play close to your empty tiles rule. Every empty tile worth +1 point
+                /*//Play close to your empty tiles rule. Every empty tile worth +1 point
                 for(int k = i-1; k < i+1; k++){
                     for(int l = j-1; l < j+1; l++){
                         if(l < 0 || l >= GRID_SIZE || k <0 || k >= GRID_SIZE) {
@@ -240,33 +226,77 @@ public class GameBoard {
                             }
                         }
                     }
-                }
+                }*/
                 if(board[i][j] == playsNow.getPawn()){
                     //Every pawn is worth 1 point
-                    score++;
+                    //score++;
                     //Captured corner +200 points
                     if((i == 0 && j == 0) || (i == 0 && j == 7) || (i == 7 && j == 0) || (i == 7 && j == 7)){
-                        score += 200;
+                        positions += 200;
                     }
                     //Captured squares next to corners worth -50 points
-                    else if((i == 0 && j == 1) || (i == 1 && j == 0) || (i == 1 && j == 1) || (i == 0 && j == 6) ||
+                    /*else if((i == 0 && j == 1) || (i == 1 && j == 0) || (i == 1 && j == 1) || (i == 0 && j == 6) ||
                             (i == 1 && j == 6) || (i == 1 && j == 7) || (i == 6 && j == 0) || (i == 6 && j == 1) ||
                             (i == 7 && j == 1) || (i == 6 && j == 6) || (i == 6 && j == 7) || (i == 7 && j == 6)){
-                        score -= 50;
+                        positions -= 100;
+                    }*/
+                    else if((i == 0 && j == 1) || (i == 1 && j == 0) || (i == 1 && j == 1)){
+                        if(board[0][0] == playsNow.getPawn()){
+                            positions += 20;
+                        }
+                        else if(board[0][0] == playsNext.getPawn()){
+                            positions -= 50;
+                        }
+                        else{
+                            positions -= 100;
+                        }
+                    }
+                    else if((i == 1 && j == 6) || (i == 1 && j == 7) || (i == 6 && j == 0)){
+                        if(board[0][7] == playsNow.getPawn()){
+                            positions += 20;
+                        }
+                        else if(board[0][7] == playsNext.getPawn()){
+                            positions -= 50;
+                        }
+                        else{
+                            positions -= 100;
+                        }
+                    }
+                    else if((i == 6 && j == 0) || (i == 6 && j == 1) || (i == 7 && j == 1)){
+                        if(board[7][0] == playsNow.getPawn()){
+                            positions += 20;
+                        }
+                        else if(board[7][0] == playsNext.getPawn()){
+                            positions -= 50;
+                        }
+                        else{
+                            positions -= 100;
+                        }
+                    }
+                    else if((i == 6 && j == 6) || (i == 6 && j == 7) || (i == 7 && j == 6)){
+                        if(board[7][7] == playsNow.getPawn()){
+                            positions += 20;
+                        }
+                        else if(board[7][7] == playsNext.getPawn()){
+                            positions -= 50;
+                        }
+                        else{
+                            positions -= 100;
+                        }
                     }
                     //Captured squares at the the first inner square worth -5 points
                     else if((i == 1 && j == 2) || (i == 1 && j == 3) || (i == 1 && j == 4) || (i == 1 && j == 5) ||
                             (i == 2 && j == 1) || (i == 3 && j == 1) || (i == 4 && j == 1) || (i == 5 && j == 1) ||
                             (i == 6 && j == 2) || (i == 6 && j == 3) || (i == 6 && j == 4) || (i == 6 && j == 5) ||
                             (i == 2 && j == 6) || (i == 3 && j == 6) || (i == 4 && j == 6) || (i == 5 && j == 6)){
-                        score -= 5;
+                        positions -= 5;
                     }
                     //Captured squares at the edges worth +20 points
                     else if((i == 0 && j == 2) || (i == 0 && j == 3) || (i == 0 && j == 4) || (i == 0 && j == 5) ||
                             (i == 2 && j == 0) || (i == 3 && j == 0) || (i == 4 && j == 0) || (i == 5 && j == 0) ||
                             (i == 2 && j == 7) || (i == 3 && j == 7) || (i == 4 && j == 7) || (i == 5 && j == 7) ||
                             (i == 7 && j == 2) || (i == 7 && j == 3) || (i == 7 && j == 4) || (i == 7 && j == 5)){
-                        score += 20;
+                        positions += 20;
                     }
                 }
                 //Play close to your pawns rule. Every pawn in the last move 5x5 is +1 point
@@ -277,44 +307,92 @@ public class GameBoard {
                         }
                         else {
                             if(board[k][l]==playsNow.getPawn()){
-                                score+=5;
+                                close+=5;
                             }
                         }
                     }
                 }
             }
         }
+        double possible = 0;
         //Evaluate all next possible moves
         ArrayList<Move> possibleMoves = getValidMoves();
         for(int k = 0; k < possibleMoves.size(); k++){
             int i = possibleMoves.get(k).getRow();
             int j = possibleMoves.get(k).getCol();
             if((i == 0 && j == 0) || (i == 0 && j == 7) || (i == 7 && j == 0) || (i == 7 && j == 7)){
-                score += 200;
+                possible += 200;
             }
             //Captured squares next to corners worth -50 points
-            else if((i == 0 && j == 1) || (i == 1 && j == 0) || (i == 1 && j == 1) || (i == 0 && j == 6) ||
+            /*else if((i == 0 && j == 1) || (i == 1 && j == 0) || (i == 1 && j == 1) || (i == 0 && j == 6) ||
                     (i == 1 && j == 6) || (i == 1 && j == 7) || (i == 6 && j == 0) || (i == 6 && j == 1) ||
                     (i == 7 && j == 1) || (i == 6 && j == 6) || (i == 6 && j == 7) || (i == 7 && j == 6)){
-                score -= 50;
+                possible -= 100;
+            }*/
+            else if((i == 0 && j == 1) || (i == 1 && j == 0) || (i == 1 && j == 1)){
+                if(board[0][0] == playsNow.getPawn()){
+                    possible += 20;
+                }
+                else if(board[0][0] == playsNext.getPawn()){
+                    possible -= 50;
+                }
+                else{
+                    possible -= 100;
+                }
+            }
+            else if((i == 1 && j == 6) || (i == 1 && j == 7) || (i == 6 && j == 0)){
+                if(board[0][7] == playsNow.getPawn()){
+                    possible += 20;
+                }
+                else if(board[0][7] == playsNext.getPawn()){
+                    possible -= 50;
+                }
+                else{
+                    possible -= 100;
+                }
+            }
+            else if((i == 6 && j == 0) || (i == 6 && j == 1) || (i == 7 && j == 1)){
+                if(board[7][0] == playsNow.getPawn()) {
+                    possible += 20;
+                }
+                else if(board[7][0] == playsNext.getPawn()){
+                    possible -= 50;
+                }
+                else{
+                    possible -= 100;
+                }
+            }
+            else if((i == 6 && j == 6) || (i == 6 && j == 7) || (i == 7 && j == 6)){
+                if(board[7][7] == playsNow.getPawn()){
+                    possible += 20;
+                }
+                else if(board[7][7] == playsNext.getPawn()){
+                    possible -= 50;
+                }
+                else{
+                    possible -= 100;
+                }
             }
             //Captured squares at the the first inner square worth -5 points
             else if((i == 1 && j == 2) || (i == 1 && j == 3) || (i == 1 && j == 4) || (i == 1 && j == 5) ||
                     (i == 2 && j == 1) || (i == 3 && j == 1) || (i == 4 && j == 1) || (i == 5 && j == 1) ||
                     (i == 6 && j == 2) || (i == 6 && j == 3) || (i == 6 && j == 4) || (i == 6 && j == 5) ||
                     (i == 2 && j == 6) || (i == 3 && j == 6) || (i == 4 && j == 6) || (i == 5 && j == 6)){
-                score -= 5;
+                possible -= 5;
             }
             //Captured squares at the edges worth +20 points
             else if((i == 0 && j == 2) || (i == 0 && j == 3) || (i == 0 && j == 4) || (i == 0 && j == 5) ||
                     (i == 2 && j == 0) || (i == 3 && j == 0) || (i == 4 && j == 0) || (i == 5 && j == 0) ||
                     (i == 2 && j == 7) || (i == 3 && j == 7) || (i == 4 && j == 7) || (i == 5 && j == 7) ||
                     (i == 7 && j == 2) || (i == 7 && j == 3) || (i == 7 && j == 4) || (i == 7 && j == 5)){
-                score += 20;
+                possible += 20;
             }
         }
         //Evaluate how many pawns changed
-        score += changed*5;
+        double changedPaws = changed;
+        //score += changed*5;
+        score = 0.3*positions + 0.1*changedPaws + 0.2*possible + 0.1*pawns + 0.2*mobility + 0.1*close;
+        //if()
         return score;
     }
 
