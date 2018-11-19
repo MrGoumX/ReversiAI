@@ -78,10 +78,10 @@ public class Player {
                 max = new Move(lastM.getRow(), lastM.getCol(), lastM.getValue());
                 max.setScore(move.getScore());
             }
+            //If the score of our move is bigger than the upper limit (beta) then prune.
+            if (move.getScore() >= beta) break;
             //Change the lower limit (alpha) according to current move score and the current alpha.
             alpha = Math.max(alpha, move.getScore());
-            //If the score of our move is bigger than the upper limit (beta) then prune.
-            if (alpha >= beta) break;
         }
         //Return max move.
         return max;
@@ -111,10 +111,9 @@ public class Player {
                 min.setScore(move.getScore());
             }
             //If the score of our move is lower than the lower limit (alpha) then prune.
+            if(move.getScore() <= alpha) break;
             //Change the upper limit (beta) according to current move score and the current beta.
             beta = Math.min(beta, move.getScore());
-
-            if (alpha >= beta) break;
         }
         //Return min move.
         return min;

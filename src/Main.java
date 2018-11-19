@@ -74,9 +74,17 @@ public class Main extends Application {
                     errorAlert.showAndWait();
                 }
                 else{
-                    Bot.setDepth(Integer.parseInt(entered));
-                    Human.setDepth(Integer.parseInt(entered));
-                    finished = true;
+                    if(Integer.parseInt(entered) <= 0){
+                        Alert errorAlert = new Alert(Alert.AlertType.ERROR);
+                        errorAlert.setHeaderText("Input not valid");
+                        errorAlert.setContentText("Input cannot be zero or negative");
+                        errorAlert.showAndWait();
+                    }
+                    else{
+                        Bot.setDepth(Integer.parseInt(entered));
+                        Human.setDepth(Integer.parseInt(entered));
+                        finished = true;
+                    }
                 }
             }
         }while (!finished);
