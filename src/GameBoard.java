@@ -216,7 +216,7 @@ public class GameBoard {
                     if((i == 0 && j == 0) || (i == 0 && j == 7) || (i == 7 && j == 0) || (i == 7 && j == 7)){
                         positions += 200;
                     }
-                    //Captured squares next to corners worth -50 points
+                    //Captured squares next to corners worth -100 points if corner is empty, -50 points if corner is captured by the enemy and +20 if the corner is captured by us
                     else if((i == 0 && j == 1) || (i == 1 && j == 0) || (i == 1 && j == 1)){
                         if(board[0][0] == playsNow.getPawn()){
                             positions += 20;
@@ -302,7 +302,7 @@ public class GameBoard {
             if((i == 0 && j == 0) || (i == 0 && j == 7) || (i == 7 && j == 0) || (i == 7 && j == 7)){
                 possible += 200;
             }
-            //Captured squares next to corners worth -50 points
+            //Captured squares next to corners worth -100 points if corner is empty, -50 points if corner is captured by the enemy and +20 if the corner is captured by us
             else if((i == 0 && j == 1) || (i == 1 && j == 0) || (i == 1 && j == 1)){
                 if(board[0][0] == playsNow.getPawn()){
                     possible += 20;
@@ -368,7 +368,6 @@ public class GameBoard {
         score = 0.3*positions + 0.1*changedPaws + 0.2*possible + 0.1*pawns + 0.2*mobility + 0.1*close;
         GameBoard enemy = new GameBoard(this);
         ArrayList<Move> enemysMoves = enemy.getValidMoves();
-        //System.out.println(enemy.getPlaysNow().getPawn());
         for(Move m: enemysMoves){
             int i = m.getRow();
             int j = m.getCol();
